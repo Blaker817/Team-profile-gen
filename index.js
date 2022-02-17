@@ -1,6 +1,13 @@
 const inquirer = require('inquirer')
-const output = { manager: {}, engineers: [], interns: [] }
-const managersQuestions = [
+const Manager = require('./lib/Manager')
+const Intern = require('./lib/Intern')
+const Engineer = require('./lib/Engineer')
+const fs = require('fs')
+const path = require('path')
+
+const teamMembers = []
+
+inquirer.prompt([
     {
         type: 'input',
         name: 'managersName',
@@ -26,111 +33,103 @@ const managersQuestions = [
     },
 
 
-];
-const menuQuestions = [{
-    type: 'list',
-    name: 'menu',
-    message: 'Who do you want to add?',
-    choices: [
-        'Intern',
-        'Engineer',
-        'Finish',
-    ],
-},]
-const internQuestions = [{
-    type: 'input',
-    name: 'internName',
-    message: 'What is the interns name?',
+]).then(answers => {
+    const manager = new Manager(answers.managersName, answers.employeeID, answers.emailAddress, answers.officeNumber)
+    console.log(manager);
+    teamMembers.push(manager)
+    menu()
+})
 
-},
-{
-    type: 'input',
-    name: 'internId',
-    message: 'Whats your Intern ID?',
-
-},
-{
-    type: 'input',
-    name: 'internEmail',
-    message: 'Whats your Intern Email?',
-
-},
-{
-    type: 'input',
-    name: 'internSchool',
-    message: 'Whats your Intern School Name?',
-
-},
-
-
-]
-const engineerQuestions = [{
-    type: 'input',
-    name: 'engineerName',
-    message: 'What is the engineers name?',
-
-},
-{
-    type: 'input',
-    name: 'engineerId',
-    message: 'Whats your engineers ID?',
-
-
-},
-{
-    type: 'input',
-    name: 'engineerEmail',
-    message: 'Whats your engineers Email?',
-
-
-},
-{
-    type: 'input',
-    name: 'engineerGithub',
-    message: 'Whats your engineers GitHub username?',
-
-
-},
-
-
-]
-function displayEngineer() {
-    inquirer.prompt(engineerQuestions).then((answers) => {
-
-        output.engineers.push(answers)
-        displayMenu()
-    });
-}
-function displayIntern() {
-    inquirer.prompt(internQuestions).then((answers) => {
-
-        output.interns.push(answers)
-        displayMenu()
-    });
-}
-function displayMenu() {
-    inquirer.prompt(menuQuestions).then((answers) => {
-
-
-        if (answers.menu === "Engineer") {
-            displayEngineer()
-        } else if (answers.menu === "Intern") {
-            displayIntern()
-        } else {
-            console.log(output)
-
+function menu() {
+    inquirer.prompt([
+        {
+            type: 'list',
+            name: 'menu',
+            message: 'Who do you want to add?',
+            choices: [
+                'Intern',
+                'Engineer',
+                'Finish',
+            ]
         }
-
-    });
+    ]).then(answer => {
+        if (answer.menu === 'Intern') {
+            addIntern()
+        } else if (answer.menu === 'Engineer') {
+            addEngineer()
+        } else {
+            createTeam()
+        }
+    })
 }
-function init() {
-    inquirer.prompt(managersQuestions).then((answers) => {
-        output.manager = answers
 
-        displayMenu()
-    });
+function addIntern() {
+    inquirer.prompt([
 
+        {
+            type: 'input',
+            name: 'internName',
+            message: 'What is the interns name?',
+
+        },
+        {
+            type: 'input',
+            name: 'internId',
+            message: 'Whats your Intern ID?',
+
+        },
+        {
+            type: 'input',
+            name: 'internEmail',
+            message: 'Whats your Intern Email?',
+
+        },
+        {
+            type: 'input',
+            name: 'internSchool',
+            message: 'Whats your Intern School Name?',
+
+        },
+    ]).then(answers => {
+        const intern = new Intern(answers.internName, answers.internId, answers.internEmail, answers.internSchool)
+        teamMembers.push(intern)
+        menu()
+    })
 }
 
-// Function call to initialize app
-init();
+function addEngineer() {
+    inquirer.prompt([
+
+        {
+            type: 'input',
+            name: 'engineerName',
+            message: 'What is the engineers name?',
+
+        },
+        {
+            type: 'input',
+            name: 'engineerId',
+            message: 'Whats your engineers ID?',
+
+
+        },
+        {
+            type: 'input',
+            name: 'engineerEmail',
+            message: 'Whats your engineers Email?',
+
+
+        },
+        {
+            type: 'input',
+            name: 'engineerGithub',
+            message: 'Whats your engineers GitHub username?',
+
+
+        },
+    ]).then(answers => {
+        const engineer = new Engineer(answers.engineerName, answers.engineerId, answers. engineerEmail, answers.engineerGithub)
+        teamMembers.push(engineer)
+        menu()
+    })
+}
