@@ -5,6 +5,8 @@ const Engineer = require('./lib/Engineer')
 const fs = require('fs')
 const path = require('path')
 
+const buildTeam = require('./src/template')
+
 const teamMembers = []
 
 inquirer.prompt([
@@ -131,5 +133,13 @@ function addEngineer() {
         const engineer = new Engineer(answers.engineerName, answers.engineerId, answers. engineerEmail, answers.engineerGithub)
         teamMembers.push(engineer)
         menu()
+    })
+}
+
+function createTeam() {
+    console.log(teamMembers);
+    fs.writeFile('index.html', buildTeam(teamMembers), (err) => {
+        if (err) throw err;
+        console.log('Built team!');
     })
 }
